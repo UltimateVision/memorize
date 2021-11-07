@@ -1,0 +1,18 @@
+import 'package:get_it/get_it.dart';
+import 'package:memorize/repository/flashcard_set_repository.dart';
+
+var locator = GetIt.instance;
+
+class LocatorConfig {
+
+  static void init() {
+    locator.registerSingleton<FlashcardSetRepository>(FlashcardSetRepository());
+
+    _postInit();
+  }
+
+  static void _postInit() {
+    locator.get<FlashcardSetRepository>().initDummySet();
+  }
+
+}
