@@ -18,10 +18,13 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
         yield FlashcardSetListState(FlashcardSetListStateType.loaded, sets: sets);
         break;
       case FlashcardSetListEventType.open:
-        MemorizeNavigator.push(MemorizeNavigator.openSet(event.set!.id,));
+        MemorizeNavigator.push(MemorizeNavigator.openSet(
+          event.set!.id,
+        ));
         break;
       case FlashcardSetListEventType.edit:
-        MemorizeNavigator.push(MemorizeNavigator.editSet(event.set!.id, event.set!.name));
+        MemorizeNavigator.push(MemorizeNavigator.editSet(event.set!.id, event.set!.name))
+            .then((_) => add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
         break;
       case FlashcardSetListEventType.delete:
         List<FlashcardSet> sets = _delete(event);
@@ -35,9 +38,9 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
   }
 
   List<FlashcardSet> _delete(FlashcardSetListEvent event) {
-    final String removedSet = event.set!.name;
+    final String removedSet = event.set!.id;
     _repository.remove(removedSet);
-    List<FlashcardSet> sets = state.sets!.where((set) => set.name != removedSet).toList();
+    List<FlashcardSet> sets = state.sets!.where((set) => set.id != removedSet).toList();
     return sets;
   }
 }

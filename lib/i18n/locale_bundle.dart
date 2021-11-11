@@ -10,6 +10,8 @@ abstract class LocaleBundle {
   String get noFlashcards;
   String failedToLoadSet(String name);
   String get setNameLabel;
+  String get questionLabel;
+  String get answerLabel;
 }
 
 class LocaleBundleEn extends LocaleBundle {
@@ -36,5 +38,11 @@ class LocaleBundleEn extends LocaleBundle {
 
   @override
   String get setNameLabel => 'Name';
+
+  @override
+  String get answerLabel => 'Answer';
+
+  @override
+  String get questionLabel => 'Question';
 
 }

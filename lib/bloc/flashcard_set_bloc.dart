@@ -30,10 +30,17 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
       List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
       yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
     } else if (event is SaveSetEvent) {
-      await _repository.add(state.set);
-      MemorizeNavigator.pop();
+      if (isSetValid(state.set)) {
+        await _repository.add(state.set);
+        MemorizeNavigator.pop();
+      } else {
+        // TODO: show dialog or sth
+        print('Tried to save invalid set!');
+      }
     }
   }
+
+  bool isSetValid(FlashcardSet set) => set.name.isNotEmpty && set.flashcards.isNotEmpty;
 
   Future<FlashcardSetState> _loadSet(LoadFlashcardSetEvent event) async {
     if (event.id == 'dummy') {

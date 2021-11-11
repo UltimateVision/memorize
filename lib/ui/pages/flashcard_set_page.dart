@@ -12,9 +12,9 @@ import 'package:memorize/ui/widgets/flashcard_widget.dart';
 class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
 
   final PageController controller = PageController();
-  final String setName;
+  final String setID;
 
-  FlashcardSetPage(this.setName) : super(FlashcardSetBloc()..add(LoadFlashcardSetEvent(setName)));
+  FlashcardSetPage(this.setID) : super(FlashcardSetBloc()..add(LoadFlashcardSetEvent(setID)));
 
   @override
   void initState() {
@@ -27,9 +27,13 @@ class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          setName,
-          style: TextStyle(color: Colors.black38),
+        title: BlocBuilder<FlashcardSetBloc, FlashcardSetState>(
+          // bloc: bloc,
+          buildWhen: (oldState, newState) => oldState.set.name != newState.set.name,
+          builder: (_, FlashcardSetState state) => Text(
+            state.set.name,
+            style: TextStyle(color: Colors.black38),
+          ),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.0,
@@ -38,12 +42,12 @@ class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
         ),
       ),
       body: Center(
-        child: BlocBuilder(
-          bloc: bloc,
-          builder: (_, FlashcardSetState state) => ConditionalSwitch.single(
+        child: BlocBuilder<FlashcardSetBloc, FlashcardSetState>(
+          // bloc: bloc,
+          builder: (_, state) => ConditionalSwitch.single(
             caseBuilders: {
               FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
-              FlashcardSetStateType.error: (_) => Text('Error loading $setName set'),
+              FlashcardSetStateType.error: (_) => Text('Error loading $setID set'),
             },
             fallbackBuilder: (_) => _buildList(context, state.set.flashcards),
             valueBuilder: (_) => state.type,

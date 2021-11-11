@@ -45,7 +45,9 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
             onPressed: () => showDialog(
               context: context,
               builder: (_) => FlashcardDetailsDialog.create(
-                  onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard))),
+                onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
+                backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
+              ),
               barrierDismissible: false,
             ),
             icon: Icon(Icons.add),
@@ -121,7 +123,7 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
           children: [
             TextFormField(
               onChanged: (text) => bloc.add(ChangeSetNameEvent(text)),
-              decoration: InputDecoration(border: OutlineInputBorder(), labelText: localeBundle.setNameLabel),
+              decoration: InputDecoration(labelText: localeBundle.setNameLabel),
               initialValue: state.set.name,
             ),
             const SizedBox(
