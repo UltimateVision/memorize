@@ -1,27 +1,25 @@
 part of 'flashcard_set_bloc.dart';
 
-class FlashcardSetState implements Equatable {
+class FlashcardSetState extends Equatable {
   final FlashcardSet set;
   final FlashcardSetStateType type;
-  final Flashcard? selected;
-  final Color? color;
 
-  FlashcardSetState(this.selected, this.color, this.set, this.type);
+  FlashcardSetState(this.set, this.type);
 
-  FlashcardSetState copyWith(
-          {FlashcardSet? set, Flashcard? selected, Color? color, FlashcardSetStateType? type}) =>
+  FlashcardSetState copyWith({FlashcardSet? set, Flashcard? selected, Color? color, FlashcardSetStateType? type}) =>
       FlashcardSetState(
-        selected ?? this.selected,
-        color ?? this.color,
         set ?? this.set,
         type ?? this.type,
       );
 
-  @override
-  List<Object?> get props => [this.type, this.set, this.selected, this.color];
+  factory FlashcardSetState.initial() => FlashcardSetState(
+        FlashcardSet('', '', []),
+        FlashcardSetStateType.loading,
+      );
 
   @override
-  bool? get stringify => true;
+  List<Object?> get props => [type, set];
+
 }
 
 enum FlashcardSetStateType { loading, ready, error }

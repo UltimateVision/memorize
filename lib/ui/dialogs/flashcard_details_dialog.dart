@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memorize/bloc/flashcard_cubit.dart';
+import 'package:memorize/config/di_config.dart';
 import 'package:memorize/config/navigation.dart';
 import 'package:memorize/i18n/locale_bundle.dart';
 import 'package:memorize/i18n/localization.dart';
@@ -10,6 +11,8 @@ import 'package:memorize/model/flashcard.dart';
 typedef OnFlashcardSaved = Function(Flashcard);
 
 class FlashcardDetailsDialog extends StatelessWidget {
+  final MemorizeNavigator _navigator = locator.get();
+
   final OnFlashcardSaved onFlashcardSaved;
   final Color? backgroundColor;
   final _formKey = GlobalKey<FormState>();
@@ -41,7 +44,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'New flashcard',
+                    'Flashcard details',
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                   Column(
@@ -71,7 +74,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       IconButton(
-                        onPressed: () => MemorizeNavigator.pop(),
+                        onPressed: () => _navigator.pop(),
                         icon: Icon(Icons.cancel, color: Colors.redAccent, size: 32.0,),
                       ),
                       IconButton(

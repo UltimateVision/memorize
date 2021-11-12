@@ -5,9 +5,9 @@ import 'package:memorize/ui/pages/flashcard_set_page.dart';
 class MemorizeNavigator {
   static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  static Future<dynamic> push(MaterialPageRoute route) => navigatorKey.currentState?.push(route) ?? Future.value(null);
+  Future<dynamic> push(MaterialPageRoute route) => navigatorKey.currentState?.push(route) ?? Future.value(null);
 
-  static void pop() => navigatorKey.currentState?.pop();
+  void pop() => navigatorKey.currentState?.pop();
 
   static MaterialPageRoute openSet(String name) => MaterialPageRoute(
         builder: (_) => FlashcardSetPage(name),

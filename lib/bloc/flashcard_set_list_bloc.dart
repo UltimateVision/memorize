@@ -6,6 +6,7 @@ import 'package:memorize/repository/flashcard_set_repository.dart';
 
 class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListState> {
   final FlashcardSetRepository _repository = locator.get();
+  final MemorizeNavigator _navigator = locator.get();
 
   FlashcardSetListBloc() : super(FlashcardSetListState(FlashcardSetListStateType.initial));
 
@@ -18,12 +19,12 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
         yield FlashcardSetListState(FlashcardSetListStateType.loaded, sets: sets);
         break;
       case FlashcardSetListEventType.open:
-        MemorizeNavigator.push(MemorizeNavigator.openSet(
+        _navigator.push(MemorizeNavigator.openSet(
           event.set!.id,
         ));
         break;
       case FlashcardSetListEventType.edit:
-        MemorizeNavigator.push(MemorizeNavigator.editSet(event.set!.id, event.set!.name))
+        _navigator.push(MemorizeNavigator.editSet(event.set!.id, event.set!.name))
             .then((_) => add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
         break;
       case FlashcardSetListEventType.delete:
@@ -31,7 +32,7 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
         yield state.copyWith(sets: sets);
         break;
       case FlashcardSetListEventType.create:
-        MemorizeNavigator.push(MemorizeNavigator.createSet())
+        _navigator.push(MemorizeNavigator.createSet())
             .then((_) => add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
         break;
     }

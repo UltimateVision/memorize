@@ -10,12 +10,6 @@ class LoadFlashcardSetEvent extends FlashcardSetEvent {
 
 class CreateFlashcardSetEvent extends FlashcardSetEvent {}
 
-class ChangeActiveFlashcardEvent extends FlashcardSetEvent {
-  final int index;
-
-  ChangeActiveFlashcardEvent(this.index);
-}
-
 class AddFlashcardEvent extends FlashcardSetEvent {
   final Flashcard flashcard;
 

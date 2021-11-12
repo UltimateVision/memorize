@@ -5,7 +5,7 @@ import 'package:memorize/repository/box_repository.dart';
 
 class FlashcardSetRepository extends BoxRepository<FlashcardSet> {
 
-  static FlashcardSet _dummySet = FlashcardSet(
+  static final FlashcardSet dummySet = FlashcardSet(
     'dummy',
     'dummy',
     [
@@ -28,15 +28,15 @@ class FlashcardSetRepository extends BoxRepository<FlashcardSet> {
     return set;
   }
 
-  Future<FlashcardSet?> get(String name) async {
+  Future<FlashcardSet?> get(String id) async {
     Box<FlashcardSet> box = await getBox();
 
-    return box.get(name);
+    return box.get(id);
   }
 
-  Future<void> remove(String name) async {
+  Future<void> remove(String id) async {
     Box<FlashcardSet> box = await getBox();
-    box.delete(name);
+    box.delete(id);
   }
 
   Future<List<FlashcardSet>> getAll() async {
@@ -48,8 +48,8 @@ class FlashcardSetRepository extends BoxRepository<FlashcardSet> {
   Future<void> initDummySet() async {
     Box<FlashcardSet> box = await getBox();
 
-    if (!box.containsKey(_dummySet.id)) {
-      box.put(_dummySet.id, _dummySet);
+    if (!box.containsKey(dummySet.id)) {
+      box.put(dummySet.id, dummySet);
     }
   }
 }

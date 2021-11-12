@@ -136,15 +136,28 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
   Widget _buildList(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => ListView.builder(
         shrinkWrap: true,
         physics: ClampingScrollPhysics(),
-        itemBuilder: (_, index) => _buildFlashcard(state.set.flashcards[index], MemorizeTheme.getFlashcardColor(index)),
+        itemBuilder: (_, index) => _buildFlashcard(state, index, context),
         itemCount: state.set.flashcards.length,
       );
 
-  Widget _buildFlashcard(Flashcard flashcard, Color color) => Card(
-        color: color,
-        child: ListTile(
-          title: Text(flashcard.question),
-          subtitle: Text(flashcard.answer),
+  Widget _buildFlashcard(FlashcardSetState state, int index, BuildContext context) {
+    final Color color = MemorizeTheme.getFlashcardColor(index);
+    final Flashcard flashcard = state.set.flashcards[index];
+
+    return Card(
+      color: color,
+      child: ListTile(
+        title: Text(flashcard.question),
+        subtitle: Text(flashcard.answer),
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => FlashcardDetailsDialog.create(
+            onFlashcardSaved: (flashcard) => bloc.add(EditFlashcardEvent(flashcard, index)),
+            flashcard: flashcard,
+          ),
+          barrierDismissible: false,
         ),
-      );
+      ),
+    );
+  }
 }

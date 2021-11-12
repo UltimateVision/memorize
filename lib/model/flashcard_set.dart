@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:memorize/config/hive_config.dart';
 import 'package:memorize/model/flashcard.dart';
@@ -6,7 +7,7 @@ import 'package:uuid/uuid.dart';
 part 'flashcard_set.g.dart';
 
 @HiveType(typeId: HiveTypes.FLASHCARD_SET)
-class FlashcardSet extends HiveObject {
+class FlashcardSet extends Equatable {
 
   @HiveField(0)
   final String id;
@@ -23,4 +24,8 @@ class FlashcardSet extends HiveObject {
 
   FlashcardSet copyWith({String? name, List<Flashcard>? flashcards}) =>
       FlashcardSet(this.id, name ?? this.name, flashcards ?? this.flashcards);
+
+  @override
+  List<Object?> get props => [id, name, flashcards];
+  
 }

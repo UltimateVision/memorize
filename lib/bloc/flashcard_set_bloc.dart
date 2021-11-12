@@ -13,26 +13,31 @@ part 'flashcard_set_state.dart';
 
 class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
   final FlashcardSetRepository _repository = locator.get();
+  final MemorizeNavigator _navigator = locator.get();
 
-  FlashcardSetBloc() : super(FlashcardSetState(null, null, FlashcardSet('', '', []), FlashcardSetStateType.loading));
+  FlashcardSetBloc() : super(FlashcardSetState.initial());
 
   @override
   Stream<FlashcardSetState> mapEventToState(FlashcardSetEvent event) async* {
     if (event is LoadFlashcardSetEvent) {
       yield await _loadSet(event);
-    } else if (event is ChangeActiveFlashcardEvent) {
-      yield state.copyWith(selected: state.set.flashcards[event.index]);
     } else if (event is CreateFlashcardSetEvent) {
-      yield FlashcardSetState(null, null, FlashcardSet('', '', []), FlashcardSetStateType.ready);
+      yield FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready);
     } else if (event is ChangeSetNameEvent) {
       yield state.copyWith(set: state.set.copyWith(name: event.name));
     } else if (event is AddFlashcardEvent) {
-      List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
-      yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
+      if (event is EditFlashcardEvent) {
+        List<Flashcard> flashcards = [...state.set.flashcards];
+        flashcards[event.index] = event.flashcard;
+        yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
+      } else {
+        List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
+        yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
+      }
     } else if (event is SaveSetEvent) {
       if (isSetValid(state.set)) {
         await _repository.add(state.set);
-        MemorizeNavigator.pop();
+        _navigator.pop();
       } else {
         // TODO: show dialog or sth
         print('Tried to save invalid set!');
@@ -50,7 +55,7 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
     FlashcardSet? set = await _repository.get(event.id);
 
     return set != null
-        ? FlashcardSetState(set.flashcards[0], null, set, FlashcardSetStateType.ready)
+        ? FlashcardSetState(set, FlashcardSetStateType.ready)
         : state.copyWith(selected: null, type: FlashcardSetStateType.error);
   }
 }
