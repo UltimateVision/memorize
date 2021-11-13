@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:memorize/bloc/flashcard_set_bloc.dart';
 import 'package:memorize/config/di_config.dart';
@@ -60,9 +61,11 @@ void main() {
 
   group('FlashcardSetBloc', () {
     late FlashcardSetBloc bloc;
+    late TextEditingController textEditingController;
 
     setUp(() {
       bloc = FlashcardSetBloc();
+      textEditingController = TextEditingController();
       when(() => repository.get(dummyID)).thenAnswer((_) => Future.value(dummySet));
       when(() => repository.add(any())).thenAnswer((invocation) => Future.value(invocation.positionalArguments[0]));
     });
@@ -75,6 +78,19 @@ void main() {
         FlashcardSetState(dummySet, FlashcardSetStateType.ready),
       ],
       verify: (_) => verify(() => repository.get(dummyID)).called(1),
+    );
+
+    blocTest<FlashcardSetBloc, FlashcardSetState>(
+      'on LoadFlashcardSetEvent should init TextEditingController value with requested set name',
+      build: () => FlashcardSetBloc(nameController: textEditingController),
+      act: (bloc) => bloc.add(LoadFlashcardSetEvent(dummyID)),
+      expect: () => [
+        FlashcardSetState(dummySet, FlashcardSetStateType.ready),
+      ],
+      verify: (_) {
+        verify(() => repository.get(dummyID)).called(1);
+        expect(textEditingController.text == dummySet.name, isTrue);
+      },
     );
 
     blocTest<FlashcardSetBloc, FlashcardSetState>(

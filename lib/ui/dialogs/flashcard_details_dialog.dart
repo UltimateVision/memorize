@@ -17,16 +17,25 @@ class FlashcardDetailsDialog extends StatelessWidget {
   final Color? backgroundColor;
   final _formKey = GlobalKey<FormState>();
 
-  static Widget create({Flashcard? flashcard, Color? backgroundColor, required OnFlashcardSaved onFlashcardSaved}) =>
-      BlocProvider(
-        create: (_) => FlashcardCubit(flashcard ?? Flashcard('', '')),
-        child: FlashcardDetailsDialog(
-          onFlashcardSaved: onFlashcardSaved,
-          backgroundColor: backgroundColor,
+  static Future<dynamic> show({
+    required BuildContext context,
+    required OnFlashcardSaved onFlashcardSaved,
+    Flashcard? flashcard,
+    Color? backgroundColor,
+  }) =>
+      showDialog(
+        context: context,
+        builder: (_) => BlocProvider(
+          create: (_) => FlashcardCubit(flashcard ?? Flashcard('', '')),
+          child: FlashcardDetailsDialog._(
+            onFlashcardSaved: onFlashcardSaved,
+            backgroundColor: backgroundColor,
+          ),
         ),
+        barrierDismissible: false,
       );
 
-  FlashcardDetailsDialog({required this.onFlashcardSaved, this.backgroundColor});
+  FlashcardDetailsDialog._({required this.onFlashcardSaved, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +84,11 @@ class FlashcardDetailsDialog extends StatelessWidget {
                     children: [
                       IconButton(
                         onPressed: () => _navigator.pop(),
-                        icon: Icon(Icons.cancel, color: Colors.redAccent, size: 32.0,),
+                        icon: Icon(
+                          Icons.cancel,
+                          color: Colors.redAccent,
+                          size: 32.0,
+                        ),
                       ),
                       IconButton(
                         onPressed: () {
@@ -84,7 +97,11 @@ class FlashcardDetailsDialog extends StatelessWidget {
                             Navigator.of(context).pop();
                           }
                         },
-                        icon: Icon(Icons.check_circle, color: Colors.greenAccent, size: 32.0,),
+                        icon: Icon(
+                          Icons.check_circle,
+                          color: Colors.greenAccent,
+                          size: 32.0,
+                        ),
                       )
                     ],
                   ),

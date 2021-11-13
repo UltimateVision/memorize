@@ -14,8 +14,9 @@ part 'flashcard_set_state.dart';
 class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
   final FlashcardSetRepository _repository = locator.get();
   final MemorizeNavigator _navigator = locator.get();
+  final TextEditingController? nameController;
 
-  FlashcardSetBloc() : super(FlashcardSetState.initial());
+  FlashcardSetBloc({this.nameController}) : super(FlashcardSetState.initial());
 
   @override
   Stream<FlashcardSetState> mapEventToState(FlashcardSetEvent event) async* {
@@ -54,8 +55,11 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
 
     FlashcardSet? set = await _repository.get(event.id);
 
-    return set != null
-        ? FlashcardSetState(set, FlashcardSetStateType.ready)
-        : state.copyWith(selected: null, type: FlashcardSetStateType.error);
+    if (set != null) {
+      nameController?.text = set.name;
+      return FlashcardSetState(set, FlashcardSetStateType.ready);
+    } else {
+      return state.copyWith(selected: null, type: FlashcardSetStateType.error);
+    }
   }
 }

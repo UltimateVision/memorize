@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide BackButton;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_conditional_rendering/conditional.dart';
 import 'package:flutter_conditional_rendering/conditional_switch.dart';
 import 'package:memorize/bloc/flashcard_set_bloc.dart';
 import 'package:memorize/config/theme.dart';
@@ -8,22 +7,25 @@ import 'package:memorize/i18n/locale_bundle.dart';
 import 'package:memorize/i18n/localization.dart';
 import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/ui/dialogs/flashcard_details_dialog.dart';
+import 'package:memorize/ui/widgets/back_button.dart';
 import 'package:memorize/ui/widgets/bloc_widget.dart';
 
 class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
+  final _formKey = GlobalKey<FormState>();
+
   final String id;
   final String setName;
   final bool isNewSet;
 
   FlashcardSetEditPage.create()
       : id = '',
-        setName = 'Create set',
+        setName = '',
         isNewSet = true,
-        super(FlashcardSetBloc()..add(CreateFlashcardSetEvent()));
+        super(FlashcardSetBloc(nameController: TextEditingController())..add(CreateFlashcardSetEvent()));
 
   FlashcardSetEditPage.edit(this.id, this.setName)
       : isNewSet = false,
-        super(FlashcardSetBloc()..add(LoadFlashcardSetEvent(id)));
+        super(FlashcardSetBloc(nameController: TextEditingController())..add(LoadFlashcardSetEvent(id)));
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +33,19 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          setName,
-          style: TextStyle(color: Colors.black38),
-        ),
+        title: _buildForm(context, localeBundle),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.0,
         iconTheme: IconThemeData(
           color: Colors.black38,
         ),
+        leading: BackButton(),
         actions: [
           IconButton(
-            onPressed: () => showDialog(
+            onPressed: () => FlashcardDetailsDialog.show(
               context: context,
-              builder: (_) => FlashcardDetailsDialog.create(
-                onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
-                backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
-              ),
-              barrierDismissible: false,
+              onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
+              backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
             ),
             icon: Icon(Icons.add),
           ),
@@ -73,61 +70,41 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
     );
   }
 
-  Widget _buildPage(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Conditional.single(
-                context: context,
-                conditionBuilder: (_) => isNewSet,
-                widgetBuilder: (_) => _buildForm(context, state, localeBundle),
-                fallbackBuilder: (_) => const SizedBox.shrink(),
-              ),
-              Conditional.single(
-                context: context,
-                conditionBuilder: (_) => state.set.flashcards.isNotEmpty,
-                widgetBuilder: (_) => _buildList(context, state, localeBundle),
-                fallbackBuilder: (_) => _emptySetWidget(context, localeBundle),
-              ),
-            ],
-          ),
+  Widget _buildPage(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) =>
+      state.set.flashcards.isNotEmpty
+          ? _buildList(context, state, localeBundle)
+          : _emptySetWidget(context, localeBundle);
+
+  Widget _emptySetWidget(BuildContext context, LocaleBundle localeBundle) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.style_rounded,
+              size: 96.0,
+              color: Colors.black38,
+            ),
+            const SizedBox(
+              height: 16.0,
+            ),
+            Text(
+              localeBundle.noFlashcards,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.caption,
+            ),
+          ],
         ),
       );
 
-  Widget _emptySetWidget(BuildContext context, LocaleBundle localeBundle) => Column(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const SizedBox(
-            height: 16.0,
-          ),
-          Icon(
-            Icons.style_rounded,
-            size: 96.0,
-            color: Colors.black38,
-          ),
-          const SizedBox(
-            height: 16.0,
-          ),
-          Text(
-            localeBundle.noFlashcards,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.caption,
-          ),
-        ],
-      );
-
-  Widget _buildForm(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => Form(
+  Widget _buildForm(BuildContext context, LocaleBundle localeBundle) => Form(
+        key: _formKey,
         child: Column(
           children: [
             TextFormField(
               onChanged: (text) => bloc.add(ChangeSetNameEvent(text)),
               decoration: InputDecoration(labelText: localeBundle.setNameLabel),
-              initialValue: state.set.name,
-            ),
-            const SizedBox(
-              height: 8.0,
+              controller: bloc.nameController,
             ),
           ],
         ),
@@ -144,18 +121,18 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
     final Color color = MemorizeTheme.getFlashcardColor(index);
     final Flashcard flashcard = state.set.flashcards[index];
 
-    return Card(
-      color: color,
-      child: ListTile(
-        title: Text(flashcard.question),
-        subtitle: Text(flashcard.answer),
-        onTap: () => showDialog(
-          context: context,
-          builder: (_) => FlashcardDetailsDialog.create(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Card(
+        color: color,
+        child: ListTile(
+          title: Text(flashcard.question),
+          subtitle: Text(flashcard.answer),
+          onTap: () => FlashcardDetailsDialog.show(
+            context: context,
             onFlashcardSaved: (flashcard) => bloc.add(EditFlashcardEvent(flashcard, index)),
             flashcard: flashcard,
           ),
-          barrierDismissible: false,
         ),
       ),
     );
