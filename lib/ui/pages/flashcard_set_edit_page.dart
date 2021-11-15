@@ -9,6 +9,8 @@ import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/ui/dialogs/flashcard_details_dialog.dart';
 import 'package:memorize/ui/widgets/back_button.dart';
 import 'package:memorize/ui/widgets/bloc_widget.dart';
+import 'package:memorize/ui/widgets/flashcard_list_field.dart';
+import 'package:memorize/utils/form_utils.dart';
 
 class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
   final _formKey = GlobalKey<FormState>();
@@ -31,40 +33,43 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
   Widget build(BuildContext context) {
     final LocaleBundle localeBundle = Localization.of(context).bundle;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: _buildForm(context, localeBundle),
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0.0,
-        iconTheme: IconThemeData(
-          color: Colors.black38,
-        ),
-        leading: BackButton(),
-        actions: [
-          IconButton(
-            onPressed: () => FlashcardDetailsDialog.show(
-              context: context,
-              onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
-              backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
+    return Form(
+      key: _formKey,
+      child: Scaffold(
+        appBar: AppBar(
+          title: _buildForm(context, localeBundle),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0.0,
+          iconTheme: IconThemeData(
+            color: Colors.black38,
+          ),
+          leading: BackButton(),
+          actions: [
+            IconButton(
+              onPressed: () => FlashcardDetailsDialog.show(
+                context: context,
+                onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
+                backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
+              ),
+              icon: Icon(Icons.add),
             ),
-            icon: Icon(Icons.add),
+            IconButton(
+              onPressed: () => bloc.add(SaveSetEvent(_formKey.currentState)),
+              icon: Icon(Icons.save),
+            ),
+          ],
+        ),
+        body: BlocBuilder(
+          bloc: bloc,
+          builder: (_, FlashcardSetState state) => ConditionalSwitch.single(
+            caseBuilders: {
+              FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
+              FlashcardSetStateType.error: (_) => Text(localeBundle.failedToLoadSet(setName)),
+            },
+            fallbackBuilder: (_) => FlashcardListField(bloc), //_buildPage(context, state, localeBundle),
+            valueBuilder: (_) => state.type,
+            context: context,
           ),
-          IconButton(
-            onPressed: () => bloc.add(SaveSetEvent()),
-            icon: Icon(Icons.save),
-          ),
-        ],
-      ),
-      body: BlocBuilder(
-        bloc: bloc,
-        builder: (_, FlashcardSetState state) => ConditionalSwitch.single(
-          caseBuilders: {
-            FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
-            FlashcardSetStateType.error: (_) => Text(localeBundle.failedToLoadSet(setName)),
-          },
-          fallbackBuilder: (_) => _buildPage(context, state, localeBundle),
-          valueBuilder: (_) => state.type,
-          context: context,
         ),
       ),
     );
@@ -97,18 +102,12 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
         ),
       );
 
-  Widget _buildForm(BuildContext context, LocaleBundle localeBundle) => Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            TextFormField(
+  Widget _buildForm(BuildContext context, LocaleBundle localeBundle) => TextFormField(
               onChanged: (text) => bloc.add(ChangeSetNameEvent(text)),
               decoration: InputDecoration(labelText: localeBundle.setNameLabel),
               controller: bloc.nameController,
-            ),
-          ],
-        ),
-      );
+              validator: (value) => FormUtils.requiredFieldValidator(localeBundle.setNameLabel, value),
+            );
 
   Widget _buildList(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => ListView.builder(
         shrinkWrap: true,

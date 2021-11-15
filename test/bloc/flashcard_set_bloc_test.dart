@@ -13,6 +13,13 @@ class _MockedFlashcardSetRepository extends Mock implements FlashcardSetReposito
 
 class _MockedMemorizeNavigator extends Mock implements MemorizeNavigator {}
 
+class _MockedFormState extends Mock implements FormState {
+
+  @override
+  String toString({DiagnosticLevel? minLevel}) => 'MOCK';
+
+}
+
 void main() {
   final String dummyID = '123-qwe-rty';
   final FlashcardSet dummySet = FlashcardSet(
@@ -20,11 +27,16 @@ void main() {
     FlashcardSetRepository.dummySet.name,
     FlashcardSetRepository.dummySet.flashcards,
   );
+  final _MockedFormState validFormState = _MockedFormState();
+  final _MockedFormState invalidFormState = _MockedFormState();
   final _MockedFlashcardSetRepository repository = _MockedFlashcardSetRepository();
   final _MockedMemorizeNavigator navigator = _MockedMemorizeNavigator();
 
   locator.registerSingleton<FlashcardSetRepository>(repository);
   locator.registerSingleton<MemorizeNavigator>(navigator);
+
+  when(() => validFormState.validate()).thenReturn(true);
+  when(() => invalidFormState.validate()).thenReturn(false);
 
   setUpAll(() {
     registerFallbackValue(FlashcardSet('', '', []));
@@ -141,7 +153,7 @@ void main() {
         build: () => bloc,
         act: (bloc) {
           bloc.add(LoadFlashcardSetEvent(dummyID));
-          bloc.add(SaveSetEvent());
+          bloc.add(SaveSetEvent(validFormState));
         },
         expect: () => [
               FlashcardSetState(dummySet, FlashcardSetStateType.ready),
@@ -152,39 +164,58 @@ void main() {
         });
 
     blocTest<FlashcardSetBloc, FlashcardSetState>(
-      'on SaveSetEvent should not save set without name',
-      build: () => bloc,
-      act: (bloc) {
-        bloc.add(CreateFlashcardSetEvent());
-        bloc.add(AddFlashcardEvent(Flashcard('a', 'b')));
-        bloc.add(SaveSetEvent());
-      },
-      expect: () => [
-        FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
-        FlashcardSetState(FlashcardSet('', '', [Flashcard('a', 'b')]), FlashcardSetStateType.ready),
-      ],
-        verify: (_) {
-          verifyNever(() => repository.add(dummySet));
-          verifyNever(() => navigator.pop());
-        }
-    );
-
-    blocTest<FlashcardSetBloc, FlashcardSetState>(
-      'on SaveSetEvent should not save set without flashcards',
+        'on SaveSetEvent should not save set invalid form',
         build: () => bloc,
         act: (bloc) {
           bloc.add(CreateFlashcardSetEvent());
-          bloc.add(ChangeSetNameEvent('My set'));
-          bloc.add(SaveSetEvent());
+          bloc.add(AddFlashcardEvent(Flashcard('a', 'b')));
+          bloc.add(SaveSetEvent(invalidFormState));
         },
         expect: () => [
           FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
-          FlashcardSetState(FlashcardSet('', 'My set', []), FlashcardSetStateType.ready),
+          FlashcardSetState(FlashcardSet('', '', [Flashcard('a', 'b')]), FlashcardSetStateType.ready),
         ],
         verify: (_) {
           verifyNever(() => repository.add(dummySet));
           verifyNever(() => navigator.pop());
         }
     );
+
+    // FIXME: move form validation testing to widget test
+    // blocTest<FlashcardSetBloc, FlashcardSetState>(
+    //   'on SaveSetEvent should not save set without name',
+    //   build: () => bloc,
+    //   act: (bloc) {
+    //     bloc.add(CreateFlashcardSetEvent());
+    //     bloc.add(AddFlashcardEvent(Flashcard('a', 'b')));
+    //     bloc.add(SaveSetEvent(invalidFormState));
+    //   },
+    //   expect: () => [
+    //     FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
+    //     FlashcardSetState(FlashcardSet('', '', [Flashcard('a', 'b')]), FlashcardSetStateType.ready),
+    //   ],
+    //     verify: (_) {
+    //       verifyNever(() => repository.add(dummySet));
+    //       verifyNever(() => navigator.pop());
+    //     }
+    // );
+    //
+    // blocTest<FlashcardSetBloc, FlashcardSetState>(
+    //   'on SaveSetEvent should not save set without flashcards',
+    //     build: () => bloc,
+    //     act: (bloc) {
+    //       bloc.add(CreateFlashcardSetEvent());
+    //       bloc.add(ChangeSetNameEvent('My set'));
+    //       bloc.add(SaveSetEvent(invalidFormState));
+    //     },
+    //     expect: () => [
+    //       FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
+    //       FlashcardSetState(FlashcardSet('', 'My set', []), FlashcardSetStateType.ready),
+    //     ],
+    //     verify: (_) {
+    //       verifyNever(() => repository.add(dummySet));
+    //       verifyNever(() => navigator.pop());
+    //     }
+    // );
   });
 }

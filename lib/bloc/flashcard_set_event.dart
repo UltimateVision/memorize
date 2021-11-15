@@ -28,4 +28,8 @@ class ChangeSetNameEvent extends FlashcardSetEvent {
   ChangeSetNameEvent(this.name);
 }
 
-class SaveSetEvent extends FlashcardSetEvent {}
+class SaveSetEvent extends FlashcardSetEvent {
+  final FormState? formState;
+
+  SaveSetEvent(this.formState);
+}

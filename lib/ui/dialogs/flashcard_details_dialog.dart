@@ -7,6 +7,7 @@ import 'package:memorize/config/navigation.dart';
 import 'package:memorize/i18n/locale_bundle.dart';
 import 'package:memorize/i18n/localization.dart';
 import 'package:memorize/model/flashcard.dart';
+import 'package:memorize/utils/form_utils.dart';
 
 typedef OnFlashcardSaved = Function(Flashcard);
 
@@ -64,7 +65,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                         ),
                         initialValue: state.question,
                         onChanged: (text) => context.read<FlashcardCubit>().setQuestion(text),
-                        validator: (value) => _fieldRequiredValidator(localeBundle.questionLabel, value),
+                        validator: (value) => FormUtils.requiredFieldValidator(localeBundle.questionLabel, value),
                       ),
                       const SizedBox(
                         height: 16.0,
@@ -75,7 +76,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                         ),
                         initialValue: state.answer,
                         onChanged: (text) => context.read<FlashcardCubit>().setAnswer(text),
-                        validator: (value) => _fieldRequiredValidator(localeBundle.answerLabel, value),
+                        validator: (value) => FormUtils.requiredFieldValidator(localeBundle.answerLabel, value),
                       ),
                     ],
                   ),
@@ -114,6 +115,3 @@ class FlashcardDetailsDialog extends StatelessWidget {
     );
   }
 }
-
-String? _fieldRequiredValidator(String fieldName, String? value) =>
-    (value == null || value.isEmpty) ? '$fieldName is required' : null;

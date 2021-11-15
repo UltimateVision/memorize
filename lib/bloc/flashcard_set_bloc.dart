@@ -36,7 +36,9 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
         yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
       }
     } else if (event is SaveSetEvent) {
-      if (isSetValid(state.set)) {
+      bool isValid = event.formState?.validate() ?? false;
+
+      if (isValid) {
         await _repository.add(state.set);
         _navigator.pop();
       } else {
