@@ -20,31 +20,34 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
 
   @override
   Stream<FlashcardSetState> mapEventToState(FlashcardSetEvent event) async* {
-    if (event is LoadFlashcardSetEvent) {
-      yield await _loadSet(event);
-    } else if (event is CreateFlashcardSetEvent) {
-      yield FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready);
-    } else if (event is ChangeSetNameEvent) {
-      yield state.copyWith(set: state.set.copyWith(name: event.name));
-    } else if (event is AddFlashcardEvent) {
-      if (event is EditFlashcardEvent) {
-        List<Flashcard> flashcards = [...state.set.flashcards];
-        flashcards[event.index] = event.flashcard;
-        yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
-      } else {
-        List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
-        yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
-      }
-    } else if (event is SaveSetEvent) {
-      bool isValid = event.formState?.validate() ?? false;
+    try {
+      if (event is LoadFlashcardSetEvent) {
+        yield await _loadSet(event);
+      } else if (event is CreateFlashcardSetEvent) {
+        yield FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready);
+      } else if (event is ChangeSetNameEvent) {
+        yield state.copyWith(set: state.set.copyWith(name: event.name));
+      } else if (event is AddFlashcardEvent) {
+        if (event is EditFlashcardEvent) {
+          List<Flashcard> flashcards = [...state.set.flashcards];
+          flashcards[event.index] = event.flashcard;
+          yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
+        } else {
+          List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
+          yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
+        }
+      } else if (event is SaveSetEvent) {
+        bool isValid = event.formState?.validate() ?? false;
 
-      if (isValid) {
-        await _repository.add(state.set);
-        _navigator.pop();
-      } else {
-        // TODO: show dialog or sth
-        print('Tried to save invalid set!');
+        if (isValid) {
+          await _repository.add(state.set);
+          _navigator.pop();
+        }
       }
+    } catch (error, stackTrace) {
+      // FIXME: add error logging
+
+      yield state.copyWith(type: FlashcardSetStateType.error);
     }
   }
 

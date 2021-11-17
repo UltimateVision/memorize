@@ -5,8 +5,8 @@ import 'package:memorize/bloc/flashcard_set_bloc.dart';
 import 'package:memorize/config/theme.dart';
 import 'package:memorize/i18n/locale_bundle.dart';
 import 'package:memorize/i18n/localization.dart';
-import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/ui/dialogs/flashcard_details_dialog.dart';
+import 'package:memorize/ui/widgets/app_error_widget.dart';
 import 'package:memorize/ui/widgets/back_button.dart';
 import 'package:memorize/ui/widgets/bloc_widget.dart';
 import 'package:memorize/ui/widgets/flashcard_list_field.dart';
@@ -15,19 +15,11 @@ import 'package:memorize/utils/form_utils.dart';
 class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
   final _formKey = GlobalKey<FormState>();
 
-  final String id;
-  final String setName;
-  final bool isNewSet;
-
   FlashcardSetEditPage.create()
-      : id = '',
-        setName = '',
-        isNewSet = true,
-        super(FlashcardSetBloc(nameController: TextEditingController())..add(CreateFlashcardSetEvent()));
+      : super(FlashcardSetBloc(nameController: TextEditingController())..add(CreateFlashcardSetEvent()));
 
-  FlashcardSetEditPage.edit(this.id, this.setName)
-      : isNewSet = false,
-        super(FlashcardSetBloc(nameController: TextEditingController())..add(LoadFlashcardSetEvent(id)));
+  FlashcardSetEditPage.edit(String id)
+      : super(FlashcardSetBloc(nameController: TextEditingController())..add(LoadFlashcardSetEvent(id)));
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +29,7 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
       key: _formKey,
       child: Scaffold(
         appBar: AppBar(
-          title: _buildForm(context, localeBundle),
+          title: _buildTitle(context, localeBundle),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0.0,
           iconTheme: IconThemeData(
@@ -64,9 +56,9 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
           builder: (_, FlashcardSetState state) => ConditionalSwitch.single(
             caseBuilders: {
               FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
-              FlashcardSetStateType.error: (_) => Text(localeBundle.failedToLoadSet(setName)),
+              FlashcardSetStateType.error: (_) => AppErrorWidget(),
             },
-            fallbackBuilder: (_) => FlashcardListField(bloc), //_buildPage(context, state, localeBundle),
+            fallbackBuilder: (_) => EditableFlashcardListField(bloc: bloc),
             valueBuilder: (_) => state.type,
             context: context,
           ),
@@ -75,65 +67,10 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
     );
   }
 
-  Widget _buildPage(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) =>
-      state.set.flashcards.isNotEmpty
-          ? _buildList(context, state, localeBundle)
-          : _emptySetWidget(context, localeBundle);
-
-  Widget _emptySetWidget(BuildContext context, LocaleBundle localeBundle) => Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.style_rounded,
-              size: 96.0,
-              color: Colors.black38,
-            ),
-            const SizedBox(
-              height: 16.0,
-            ),
-            Text(
-              localeBundle.noFlashcards,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.caption,
-            ),
-          ],
-        ),
+  Widget _buildTitle(BuildContext context, LocaleBundle localeBundle) => TextFormField(
+        onChanged: (text) => bloc.add(ChangeSetNameEvent(text)),
+        decoration: InputDecoration(labelText: localeBundle.setNameLabel),
+        controller: bloc.nameController,
+        validator: (value) => FormUtils.requiredFieldValidator(localeBundle.setNameLabel, value),
       );
-
-  Widget _buildForm(BuildContext context, LocaleBundle localeBundle) => TextFormField(
-              onChanged: (text) => bloc.add(ChangeSetNameEvent(text)),
-              decoration: InputDecoration(labelText: localeBundle.setNameLabel),
-              controller: bloc.nameController,
-              validator: (value) => FormUtils.requiredFieldValidator(localeBundle.setNameLabel, value),
-            );
-
-  Widget _buildList(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => ListView.builder(
-        shrinkWrap: true,
-        physics: ClampingScrollPhysics(),
-        itemBuilder: (_, index) => _buildFlashcard(state, index, context),
-        itemCount: state.set.flashcards.length,
-      );
-
-  Widget _buildFlashcard(FlashcardSetState state, int index, BuildContext context) {
-    final Color color = MemorizeTheme.getFlashcardColor(index);
-    final Flashcard flashcard = state.set.flashcards[index];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Card(
-        color: color,
-        child: ListTile(
-          title: Text(flashcard.question),
-          subtitle: Text(flashcard.answer),
-          onTap: () => FlashcardDetailsDialog.show(
-            context: context,
-            onFlashcardSaved: (flashcard) => bloc.add(EditFlashcardEvent(flashcard, index)),
-            flashcard: flashcard,
-          ),
-        ),
-      ),
-    );
-  }
 }

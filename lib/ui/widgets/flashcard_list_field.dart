@@ -6,16 +6,19 @@ import 'package:memorize/i18n/localization.dart';
 import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/ui/dialogs/flashcard_details_dialog.dart';
 
-class FlashcardListField extends FormField<List<Flashcard>> {
-  FlashcardListField(FlashcardSetBloc bloc) : super(
-    builder: (formFieldState) => _FlashcardListField(bloc: bloc, formFieldState: formFieldState,),
-    validator: (_) => bloc.state.set.flashcards.isNotEmpty ? null : 'empty',
-  );
-
+class EditableFlashcardListField extends FormField<List<Flashcard>> {
+  EditableFlashcardListField({Key? key, required FlashcardSetBloc bloc})
+      : super(
+          builder: (formFieldState) => _FlashcardListField(
+            bloc: bloc,
+            formFieldState: formFieldState,
+            key: key,
+          ),
+          validator: (_) => bloc.state.set.flashcards.isNotEmpty ? null : 'empty',
+        );
 }
 
 class _FlashcardListField extends StatelessWidget {
-
   final FlashcardSetBloc bloc;
   final FormFieldState formFieldState;
 
@@ -60,11 +63,11 @@ class _FlashcardListField extends StatelessWidget {
   }
 
   Widget _buildList(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => ListView.builder(
-    shrinkWrap: true,
-    physics: ClampingScrollPhysics(),
-    itemBuilder: (_, index) => _buildFlashcard(state, index, context),
-    itemCount: state.set.flashcards.length,
-  );
+        shrinkWrap: true,
+        physics: ClampingScrollPhysics(),
+        itemBuilder: (_, index) => _buildFlashcard(state, index, context),
+        itemCount: state.set.flashcards.length,
+      );
 
   Widget _buildFlashcard(FlashcardSetState state, int index, BuildContext context) {
     final Color color = MemorizeTheme.getFlashcardColor(index);
@@ -86,5 +89,4 @@ class _FlashcardListField extends StatelessWidget {
       ),
     );
   }
-
 }

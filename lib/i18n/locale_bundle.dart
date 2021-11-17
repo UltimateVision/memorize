@@ -12,6 +12,9 @@ abstract class LocaleBundle {
   String get setNameLabel;
   String get questionLabel;
   String get answerLabel;
+
+  /// Generic
+  String get appError;
 }
 
 class LocaleBundleEn extends LocaleBundle {
@@ -44,5 +47,8 @@ class LocaleBundleEn extends LocaleBundle {
 
   @override
   String get questionLabel => 'Question';
+
+  @override
+  String get appError => 'Ooops, there was an error...';
 
 }

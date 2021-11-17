@@ -24,7 +24,7 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
         ));
         break;
       case FlashcardSetListEventType.edit:
-        _navigator.push(MemorizeNavigator.editSet(event.set!.id, event.set!.name))
+        _navigator.push(MemorizeNavigator.editSet(event.set!.id))
             .then((_) => add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
         break;
       case FlashcardSetListEventType.delete:

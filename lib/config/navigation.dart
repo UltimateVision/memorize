@@ -9,13 +9,13 @@ class MemorizeNavigator {
 
   void pop() => navigatorKey.currentState?.pop();
 
-  static MaterialPageRoute openSet(String name) => MaterialPageRoute(
-        builder: (_) => FlashcardSetPage(name),
+  static MaterialPageRoute openSet(String id) => MaterialPageRoute(
+        builder: (_) => FlashcardSetPage(id),
         settings: RouteSettings(name: '/set/open'),
       );
 
-  static MaterialPageRoute editSet(String id, String name) => MaterialPageRoute(
-        builder: (_) => FlashcardSetEditPage.edit(id, name),
+  static MaterialPageRoute editSet(String id) => MaterialPageRoute(
+        builder: (_) => FlashcardSetEditPage.edit(id),
         settings: RouteSettings(name: '/set/edit'),
       );
 
