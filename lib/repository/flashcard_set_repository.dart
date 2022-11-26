@@ -5,7 +5,7 @@ import 'package:memorize/repository/box_repository.dart';
 
 class FlashcardSetRepository extends BoxRepository<FlashcardSet> {
 
-  static final FlashcardSet dummySet = FlashcardSet(
+  static const FlashcardSet dummySet = FlashcardSet(
     'dummy',
     'dummy',
     [

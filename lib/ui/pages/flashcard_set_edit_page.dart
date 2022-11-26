@@ -15,10 +15,10 @@ import 'package:memorize/utils/form_utils.dart';
 class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
   final _formKey = GlobalKey<FormState>();
 
-  FlashcardSetEditPage.create()
+  FlashcardSetEditPage.create({super.key})
       : super(FlashcardSetBloc(nameController: TextEditingController())..add(CreateFlashcardSetEvent()));
 
-  FlashcardSetEditPage.edit(String id)
+  FlashcardSetEditPage.edit(String id, {super.key})
       : super(FlashcardSetBloc(nameController: TextEditingController())..add(LoadFlashcardSetEvent(id)));
 
   @override
@@ -32,7 +32,7 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
           title: _buildTitle(context, localeBundle),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0.0,
-          iconTheme: IconThemeData(
+          iconTheme: const IconThemeData(
             color: Colors.black38,
           ),
           leading: BackButton(),
@@ -43,11 +43,11 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
                 onFlashcardSaved: (flashcard) => bloc.add(AddFlashcardEvent(flashcard)),
                 backgroundColor: MemorizeTheme.getFlashcardColor(bloc.state.set.flashcards.length),
               ),
-              icon: Icon(Icons.add),
+              icon: const Icon(Icons.add),
             ),
             IconButton(
-              onPressed: () => bloc.add(SaveSetEvent(_formKey.currentState)),
-              icon: Icon(Icons.save),
+              onPressed: () => bloc.add(SaveFlashcardSetEvent(_formKey.currentState)),
+              icon: const Icon(Icons.save),
             ),
           ],
         ),
@@ -55,8 +55,8 @@ class FlashcardSetEditPage extends BlocWidget<FlashcardSetBloc> {
           bloc: bloc,
           builder: (_, FlashcardSetState state) => ConditionalSwitch.single(
             caseBuilders: {
-              FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
-              FlashcardSetStateType.error: (_) => AppErrorWidget(),
+              FlashcardSetStateType.loading: (_) => const CircularProgressIndicator(),
+              FlashcardSetStateType.error: (_) => const AppErrorWidget(),
             },
             fallbackBuilder: (_) => EditableFlashcardListField(bloc: bloc),
             valueBuilder: (_) => state.type,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:memorize/bloc/flashcard_cubit.dart';
 import 'package:memorize/config/di_config.dart';
@@ -27,7 +26,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
       showDialog(
         context: context,
         builder: (_) => BlocProvider(
-          create: (_) => FlashcardCubit(flashcard ?? Flashcard('', '')),
+          create: (_) => FlashcardCubit(flashcard ?? const Flashcard('', '')),
           child: FlashcardDetailsDialog._(
             onFlashcardSaved: onFlashcardSaved,
             backgroundColor: backgroundColor,
@@ -43,7 +42,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
     LocaleBundle localeBundle = Localization.of(context).bundle;
 
     return Dialog(
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).size.height / 2,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -85,7 +84,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                     children: [
                       IconButton(
                         onPressed: () => _navigator.pop(),
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.cancel,
                           color: Colors.redAccent,
                           size: 32.0,
@@ -98,7 +97,7 @@ class FlashcardDetailsDialog extends StatelessWidget {
                             Navigator.of(context).pop();
                           }
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.check_circle,
                           color: Colors.greenAccent,
                           size: 32.0,

@@ -4,7 +4,7 @@ class FlashcardSetState extends Equatable {
   final FlashcardSet set;
   final FlashcardSetStateType type;
 
-  FlashcardSetState(this.set, this.type);
+  const FlashcardSetState(this.set, this.type);
 
   FlashcardSetState copyWith({FlashcardSet? set, Flashcard? selected, Color? color, FlashcardSetStateType? type}) =>
       FlashcardSetState(
@@ -12,8 +12,9 @@ class FlashcardSetState extends Equatable {
         type ?? this.type,
       );
 
-  factory FlashcardSetState.initial() => FlashcardSetState(
-        FlashcardSet('', '', []),
+  factory FlashcardSetState.initial() =>
+      const FlashcardSetState(
+        FlashcardSet.empty(),
         FlashcardSetStateType.loading,
       );
 

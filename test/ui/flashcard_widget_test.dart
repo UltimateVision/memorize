@@ -4,9 +4,9 @@ import 'package:memorize/ui/widgets/flashcard_widget.dart';
 import 'package:memorize/utils/test_widget.dart';
 
 void main() {
-  final String frontText = 'front';
-  final String backText = 'back';
-  final FlashcardWidget flashcardWidget = FlashcardWidget(
+  const String frontText = 'front';
+  const String backText = 'back';
+  const FlashcardWidget flashcardWidget = FlashcardWidget(
     color: Colors.orangeAccent,
     frontText: frontText,
     reverseText: backText,
@@ -14,7 +14,7 @@ void main() {
 
   testWidgets('Flashcard should present front text when first displayed', (WidgetTester tester) async {
     await tester.pumpWidget(
-      TestWidget(child: flashcardWidget),
+      const TestWidget(child: flashcardWidget),
     );
 
     expect(find.text(frontText), findsOneWidget);
@@ -23,7 +23,7 @@ void main() {
 
   testWidgets('Flashcard should switch text after tapping on it', (WidgetTester tester) async {
     await tester.pumpWidget(
-      TestWidget(child: flashcardWidget),
+      const TestWidget(child: flashcardWidget),
     );
 
     await tester.tap(find.byType(Card));

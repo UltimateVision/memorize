@@ -10,9 +10,7 @@ abstract class BoxRepository<T> {
 
   @protected
   Future<Box<T>> getBox() async {
-    if (_box == null) {
-      _box = await Hive.openBox(_boxName);
-    }
+    _box ??= await Hive.openBox(_boxName);
 
     return _box!;
   }

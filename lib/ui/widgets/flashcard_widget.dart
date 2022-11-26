@@ -14,10 +14,10 @@ class FlashcardWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FlashcardWidgetState createState() => _FlashcardWidgetState();
+  FlashcardWidgetState createState() => FlashcardWidgetState();
 }
 
-class _FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProviderStateMixin {
+class FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProviderStateMixin {
   final double _size = 250.0;
 
   late AnimationController _controller;
@@ -35,7 +35,7 @@ class _FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-    Widget _card = SizedBox(
+    Widget card = SizedBox(
       width: _size,
       height: _size,
       child: Card(
@@ -60,13 +60,13 @@ class _FlashcardWidgetState extends State<FlashcardWidget> with SingleTickerProv
 
     return AnimatedBuilder(
       animation: _controller,
-      child: _card,
+      child: card,
       builder: (BuildContext context, Widget? child) => Transform(
         transform: Matrix4.identity()
           ..setEntry(3, 2, 0.001)
           ..rotateX(_flipAnimation.value),
-        child: child,
         alignment: FractionalOffset.center,
+        child: child,
       ),
     );
   }

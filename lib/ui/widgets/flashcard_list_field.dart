@@ -7,7 +7,7 @@ import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/ui/dialogs/flashcard_details_dialog.dart';
 
 class EditableFlashcardListField extends FormField<List<Flashcard>> {
-  EditableFlashcardListField({Key? key, required FlashcardSetBloc bloc})
+  EditableFlashcardListField({super.key, required FlashcardSetBloc bloc})
       : super(
           builder: (formFieldState) => _FlashcardListField(
             bloc: bloc,
@@ -22,7 +22,7 @@ class _FlashcardListField extends StatelessWidget {
   final FlashcardSetBloc bloc;
   final FormFieldState formFieldState;
 
-  _FlashcardListField({Key? key, required this.bloc, required this.formFieldState});
+  const _FlashcardListField({Key? key, required this.bloc, required this.formFieldState});
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +64,7 @@ class _FlashcardListField extends StatelessWidget {
 
   Widget _buildList(BuildContext context, FlashcardSetState state, LocaleBundle localeBundle) => ListView.builder(
         shrinkWrap: true,
-        physics: ClampingScrollPhysics(),
+        physics: const ClampingScrollPhysics(),
         itemBuilder: (_, index) => _buildFlashcard(state, index, context),
         itemCount: state.set.flashcards.length,
       );

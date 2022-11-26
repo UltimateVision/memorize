@@ -6,7 +6,7 @@ import 'package:uuid/uuid.dart';
 
 part 'flashcard_set.g.dart';
 
-@HiveType(typeId: HiveTypes.FLASHCARD_SET)
+@HiveType(typeId: HiveTypes.flashcardSet)
 class FlashcardSet extends Equatable {
 
   @HiveField(0)
@@ -18,12 +18,13 @@ class FlashcardSet extends Equatable {
   @HiveField(2)
   final List<Flashcard> flashcards;
 
-  FlashcardSet(this.id, this.name, this.flashcards);
+  const FlashcardSet(this.id, this.name, this.flashcards);
 
-  FlashcardSet.withId(this.name, this.flashcards) : id = Uuid().v4();
+  FlashcardSet.withId(this.name, this.flashcards) : id = const Uuid().v4();
+  const FlashcardSet.empty() : id = '', name = '', flashcards = const [];
 
   FlashcardSet copyWith({String? name, List<Flashcard>? flashcards}) =>
-      FlashcardSet(this.id, name ?? this.name, flashcards ?? this.flashcards);
+      FlashcardSet(id, name ?? this.name, flashcards ?? this.flashcards);
 
   @override
   List<Object?> get props => [id, name, flashcards];

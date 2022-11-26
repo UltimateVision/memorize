@@ -10,11 +10,11 @@ import 'package:memorize/ui/widgets/bloc_widget.dart';
 import 'package:memorize/ui/widgets/flashcard_widget.dart';
 
 class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
-
   final PageController controller = PageController();
   final String setID;
 
-  FlashcardSetPage(this.setID) : super(FlashcardSetBloc()..add(LoadFlashcardSetEvent(setID)));
+  FlashcardSetPage(this.setID, {super.key})
+      : super(FlashcardSetBloc()..add(LoadFlashcardSetEvent(setID)));
 
   @override
   void initState() {
@@ -31,13 +31,13 @@ class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
           buildWhen: (oldState, newState) => oldState.set.name != newState.set.name,
           builder: (_, FlashcardSetState state) => Text(
             state.set.name,
-            style: TextStyle(color: Colors.black38),
+            style: const TextStyle(color: Colors.black38),
           ),
         ),
         leading: BackButton(),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.0,
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: Colors.black38,
         ),
       ),
@@ -45,7 +45,7 @@ class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
         child: BlocBuilder<FlashcardSetBloc, FlashcardSetState>(
           builder: (_, state) => ConditionalSwitch.single(
             caseBuilders: {
-              FlashcardSetStateType.loading: (_) => CircularProgressIndicator(),
+              FlashcardSetStateType.loading: (_) => const CircularProgressIndicator(),
               FlashcardSetStateType.error: (_) => Text('Error loading $setID set'),
             },
             fallbackBuilder: (_) => _buildList(context, state.set.flashcards),
@@ -59,31 +59,29 @@ class FlashcardSetPage extends BlocWidget<FlashcardSetBloc> {
 
   Widget _buildList(BuildContext context, List<Flashcard> flashcards) => Conditional.single(
         context: context,
-        conditionBuilder: (_) => flashcards.length > 0,
+        conditionBuilder: (_) => flashcards.isNotEmpty,
         widgetBuilder: (_) => Conditional.single(
           context: context,
-          conditionBuilder: (_) => flashcards.length > 0,
+          conditionBuilder: (_) => flashcards.isNotEmpty,
           widgetBuilder: (_) => PageView.builder(
             controller: controller,
             itemBuilder: (_, position) => buildFlashcard(flashcards, position),
             itemCount: flashcards.length,
           ),
-          fallbackBuilder: (_) => CircularProgressIndicator(),
+          fallbackBuilder: (_) => const CircularProgressIndicator(),
         ),
-        fallbackBuilder: (_) => CircularProgressIndicator(),
+        fallbackBuilder: (_) => const CircularProgressIndicator(),
       );
 
   Widget buildFlashcard(List<Flashcard> flashcards, int position) {
     final Flashcard flashcard = flashcards[position];
     final Color color = MemorizeTheme.getFlashcardColor(position);
 
-    return Container(
-      child: Center(
-        child: FlashcardWidget(
-          frontText: flashcard.question,
-          reverseText: flashcard.answer,
-          color: color,
-        ),
+    return Center(
+      child: FlashcardWidget(
+        frontText: flashcard.question,
+        reverseText: flashcard.answer,
+        color: color,
       ),
     );
   }

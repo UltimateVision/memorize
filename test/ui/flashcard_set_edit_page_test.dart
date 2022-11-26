@@ -7,7 +7,6 @@ import 'package:memorize/model/flashcard.dart';
 import 'package:memorize/model/flashcard_set.dart';
 import 'package:memorize/repository/flashcard_set_repository.dart';
 import 'package:memorize/ui/pages/flashcard_set_edit_page.dart';
-import 'package:memorize/ui/widgets/flashcard_list_field.dart';
 import 'package:memorize/utils/test_widget.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -15,14 +14,7 @@ class _MockedFlashcardSetRepository extends Mock implements FlashcardSetReposito
 
 class _MockedMemorizeNavigator extends Mock implements MemorizeNavigator {}
 
-class _MockedFormState extends Mock implements FormState {
-
-  @override
-  String toString({DiagnosticLevel? minLevel}) => 'MOCK';
-
-}
-
-final FlashcardSet _dummySet = FlashcardSet('id', 'name', [Flashcard('question', 'answer')]);
+const FlashcardSet _dummySet = FlashcardSet('id', 'name', [Flashcard('question', 'answer')]);
 
 void main() {
   final LocaleBundleEn localeBundleEn = LocaleBundleEn();

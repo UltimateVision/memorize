@@ -11,16 +11,16 @@ class MemorizeNavigator {
 
   static MaterialPageRoute openSet(String id) => MaterialPageRoute(
         builder: (_) => FlashcardSetPage(id),
-        settings: RouteSettings(name: '/set/open'),
+        settings: const RouteSettings(name: '/set/open'),
       );
 
   static MaterialPageRoute editSet(String id) => MaterialPageRoute(
         builder: (_) => FlashcardSetEditPage.edit(id),
-        settings: RouteSettings(name: '/set/edit'),
+        settings: const RouteSettings(name: '/set/edit'),
       );
 
   static MaterialPageRoute createSet() => MaterialPageRoute(
         builder: (_) => FlashcardSetEditPage.create(),
-        settings: RouteSettings(name: '/set/edit'),
+        settings: const RouteSettings(name: '/set/edit'),
       );
 }

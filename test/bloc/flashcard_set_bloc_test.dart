@@ -21,7 +21,7 @@ class _MockedFormState extends Mock implements FormState {
 }
 
 void main() {
-  final String dummyID = '123-qwe-rty';
+  const String dummyID = '123-qwe-rty';
   final FlashcardSet dummySet = FlashcardSet(
     dummyID,
     FlashcardSetRepository.dummySet.name,
@@ -39,7 +39,7 @@ void main() {
   when(() => invalidFormState.validate()).thenReturn(false);
 
   setUpAll(() {
-    registerFallbackValue(FlashcardSet('', '', []));
+    registerFallbackValue(const FlashcardSet('', '', []));
   });
 
   group('FlashcardSetState', () {
@@ -64,8 +64,8 @@ void main() {
     });
 
     test('flashcard equality', () {
-      Flashcard flashcard1 = Flashcard('A', 'B');
-      Flashcard flashcard2 = Flashcard('A', 'B');
+      Flashcard flashcard1 = const Flashcard('A', 'B');
+      Flashcard flashcard2 = const Flashcard('A', 'B');
 
       expect(flashcard1 == flashcard2, isTrue);
     });
@@ -110,7 +110,7 @@ void main() {
       build: () => bloc,
       act: (bloc) => bloc.add(CreateFlashcardSetEvent()),
       expect: () => [
-        FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
+        const FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
       ],
     );
 
@@ -118,11 +118,11 @@ void main() {
         build: () => bloc,
         act: (bloc) {
           bloc.add(LoadFlashcardSetEvent(dummyID));
-          bloc.add(AddFlashcardEvent(Flashcard('A', 'B')));
+          bloc.add(AddFlashcardEvent(const Flashcard('A', 'B')));
         },
         expect: () => [
               FlashcardSetState(dummySet, FlashcardSetStateType.ready),
-              FlashcardSetState(dummySet.copyWith(flashcards: [...dummySet.flashcards, Flashcard('A', 'B')]),
+              FlashcardSetState(dummySet.copyWith(flashcards: [...dummySet.flashcards, const Flashcard('A', 'B')]),
                   FlashcardSetStateType.ready),
             ]);
 
@@ -130,11 +130,11 @@ void main() {
         build: () => bloc,
         act: (bloc) {
           bloc.add(LoadFlashcardSetEvent(dummyID));
-          bloc.add(EditFlashcardEvent(Flashcard('A', 'B'), 0));
+          bloc.add(EditFlashcardEvent(const Flashcard('A', 'B'), 0));
         },
         expect: () => [
               FlashcardSetState(dummySet, FlashcardSetStateType.ready),
-              FlashcardSetState(dummySet.copyWith(flashcards: [Flashcard('A', 'B'), ...dummySet.flashcards.sublist(1)]),
+              FlashcardSetState(dummySet.copyWith(flashcards: [const Flashcard('A', 'B'), ...dummySet.flashcards.sublist(1)]),
                   FlashcardSetStateType.ready),
             ]);
 
@@ -153,7 +153,7 @@ void main() {
         build: () => bloc,
         act: (bloc) {
           bloc.add(LoadFlashcardSetEvent(dummyID));
-          bloc.add(SaveSetEvent(validFormState));
+          bloc.add(SaveFlashcardSetEvent(validFormState));
         },
         expect: () => [
               FlashcardSetState(dummySet, FlashcardSetStateType.ready),
@@ -168,12 +168,12 @@ void main() {
         build: () => bloc,
         act: (bloc) {
           bloc.add(CreateFlashcardSetEvent());
-          bloc.add(AddFlashcardEvent(Flashcard('a', 'b')));
-          bloc.add(SaveSetEvent(invalidFormState));
+          bloc.add(AddFlashcardEvent(const Flashcard('a', 'b')));
+          bloc.add(SaveFlashcardSetEvent(invalidFormState));
         },
         expect: () => [
-          FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
-          FlashcardSetState(FlashcardSet('', '', [Flashcard('a', 'b')]), FlashcardSetStateType.ready),
+          const FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready),
+          const FlashcardSetState(FlashcardSet('', '', [Flashcard('a', 'b')]), FlashcardSetStateType.ready),
         ],
         verify: (_) {
           verifyNever(() => repository.add(dummySet));

@@ -15,8 +15,8 @@ class TestWidget extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      localizationsDelegates: [
-        const LocalizationDelegate(),
+      localizationsDelegates: const [
+        LocalizationDelegate(),
       ],
       supportedLocales: LocalizationDelegate.supportedLocales,
       navigatorKey: MemorizeNavigator.navigatorKey,

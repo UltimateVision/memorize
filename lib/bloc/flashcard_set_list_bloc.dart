@@ -8,28 +8,29 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
   final FlashcardSetRepository _repository = locator.get();
   final MemorizeNavigator _navigator = locator.get();
 
-  FlashcardSetListBloc() : super(FlashcardSetListState(FlashcardSetListStateType.initial));
+  FlashcardSetListBloc() : super(FlashcardSetListState(FlashcardSetListStateType.initial)) {
+    on<FlashcardSetListEvent>(_handleEvent);
+  }
 
-  @override
-  Stream<FlashcardSetListState> mapEventToState(FlashcardSetListEvent event) async* {
+  Future<void> _handleEvent(FlashcardSetListEvent event, Emitter<FlashcardSetListState> emit) async {
     switch (event.type) {
       case FlashcardSetListEventType.load:
-        yield FlashcardSetListState(FlashcardSetListStateType.loading);
+        emit(FlashcardSetListState(FlashcardSetListStateType.loading));
         List<FlashcardSet> sets = await _repository.getAll();
-        yield FlashcardSetListState(FlashcardSetListStateType.loaded, sets: sets);
+        emit(FlashcardSetListState(FlashcardSetListStateType.loaded, sets: sets));
         break;
       case FlashcardSetListEventType.open:
         _navigator.push(MemorizeNavigator.openSet(
-          event.set!.id,
+          event.setId!,
         ));
         break;
       case FlashcardSetListEventType.edit:
-        _navigator.push(MemorizeNavigator.editSet(event.set!.id))
+        _navigator.push(MemorizeNavigator.editSet(event.setId!))
             .then((_) => add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
         break;
       case FlashcardSetListEventType.delete:
         List<FlashcardSet> sets = _delete(event);
-        yield state.copyWith(sets: sets);
+        emit(state.copyWith(sets: sets));
         break;
       case FlashcardSetListEventType.create:
         _navigator.push(MemorizeNavigator.createSet())
@@ -39,7 +40,7 @@ class FlashcardSetListBloc extends Bloc<FlashcardSetListEvent, FlashcardSetListS
   }
 
   List<FlashcardSet> _delete(FlashcardSetListEvent event) {
-    final String removedSet = event.set!.id;
+    final String removedSet = event.setId!;
     _repository.remove(removedSet);
     List<FlashcardSet> sets = state.sets!.where((set) => set.id != removedSet).toList();
     return sets;
@@ -60,10 +61,16 @@ class FlashcardSetListState {
 enum FlashcardSetListStateType { initial, loading, loaded, error }
 
 class FlashcardSetListEvent {
-  final FlashcardSetListEventType type;
-  final FlashcardSet? set;
 
-  FlashcardSetListEvent(this.type, {this.set});
+  final FlashcardSetListEventType type;
+  final String? setId;
+
+  FlashcardSetListEvent(this.type, {this.setId});
+
+  factory FlashcardSetListEvent.open(String id) => FlashcardSetListEvent(FlashcardSetListEventType.open, setId: id);
+  factory FlashcardSetListEvent.edit(String id) => FlashcardSetListEvent(FlashcardSetListEventType.edit, setId: id);
+  factory FlashcardSetListEvent.delete(String id) => FlashcardSetListEvent(FlashcardSetListEventType.delete, setId: id);
+  factory FlashcardSetListEvent.create() => FlashcardSetListEvent(FlashcardSetListEventType.create);
 }
 
 enum FlashcardSetListEventType { load, create, open, edit, delete }

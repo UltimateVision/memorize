@@ -10,10 +10,12 @@ Future<void> main() async {
   await HiveConfig.init();
   LocatorConfig.init();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -31,8 +33,8 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      localizationsDelegates: [
-        const LocalizationDelegate(),
+      localizationsDelegates: const [
+        LocalizationDelegate(),
       ],
       supportedLocales: LocalizationDelegate.supportedLocales,
       navigatorKey: MemorizeNavigator.navigatorKey,

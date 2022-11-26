@@ -11,49 +11,26 @@ part 'flashcard_set_event.dart';
 
 part 'flashcard_set_state.dart';
 
+/// FIXME: Add error handling
 class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
   final FlashcardSetRepository _repository = locator.get();
   final MemorizeNavigator _navigator = locator.get();
   final TextEditingController? nameController;
 
-  FlashcardSetBloc({this.nameController}) : super(FlashcardSetState.initial());
-
-  @override
-  Stream<FlashcardSetState> mapEventToState(FlashcardSetEvent event) async* {
-    try {
-      if (event is LoadFlashcardSetEvent) {
-        yield await _loadSet(event);
-      } else if (event is CreateFlashcardSetEvent) {
-        yield FlashcardSetState(FlashcardSet('', '', []), FlashcardSetStateType.ready);
-      } else if (event is ChangeSetNameEvent) {
-        yield state.copyWith(set: state.set.copyWith(name: event.name));
-      } else if (event is AddFlashcardEvent) {
-        if (event is EditFlashcardEvent) {
-          List<Flashcard> flashcards = [...state.set.flashcards];
-          flashcards[event.index] = event.flashcard;
-          yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
-        } else {
-          List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
-          yield state.copyWith(set: state.set.copyWith(flashcards: flashcards));
-        }
-      } else if (event is SaveSetEvent) {
-        bool isValid = event.formState?.validate() ?? false;
-
-        if (isValid) {
-          await _repository.add(state.set);
-          _navigator.pop();
-        }
-      }
-    } catch (error, stackTrace) {
-      // FIXME: add error logging
-
-      yield state.copyWith(type: FlashcardSetStateType.error);
-    }
+  FlashcardSetBloc({this.nameController}) : super(FlashcardSetState.initial()) {
+    on<LoadFlashcardSetEvent>(_handleLoadFlashcardSetEvent);
+    on<CreateFlashcardSetEvent>((event, emit) =>
+        emit(const FlashcardSetState(FlashcardSet.empty(), FlashcardSetStateType.ready)));
+    on<ChangeSetNameEvent>(
+        (event, emit) => emit(state.copyWith(set: state.set.copyWith(name: event.name))));
+    on<AddFlashcardEvent>(_handleAddFlashcardSetEvent);
+    on<SaveFlashcardSetEvent>(_handleSaveFlashcardSetEvent);
   }
 
-  bool isSetValid(FlashcardSet set) => set.name.isNotEmpty && set.flashcards.isNotEmpty;
-
-  Future<FlashcardSetState> _loadSet(LoadFlashcardSetEvent event) async {
+  Future<void> _handleLoadFlashcardSetEvent(
+    LoadFlashcardSetEvent event,
+    Emitter<FlashcardSetState> emit,
+  ) async {
     if (event.id == 'dummy') {
       await _repository.initDummySet();
     }
@@ -62,9 +39,35 @@ class FlashcardSetBloc extends Bloc<FlashcardSetEvent, FlashcardSetState> {
 
     if (set != null) {
       nameController?.text = set.name;
-      return FlashcardSetState(set, FlashcardSetStateType.ready);
+      emit(FlashcardSetState(set, FlashcardSetStateType.ready));
     } else {
-      return state.copyWith(selected: null, type: FlashcardSetStateType.error);
+      emit(state.copyWith(selected: null, type: FlashcardSetStateType.error));
+    }
+  }
+
+  Future<void> _handleAddFlashcardSetEvent(
+    AddFlashcardEvent event,
+    Emitter<FlashcardSetState> emit,
+  ) async {
+    if (event is EditFlashcardEvent) {
+      List<Flashcard> flashcards = [...state.set.flashcards];
+      flashcards[event.index] = event.flashcard;
+      emit(state.copyWith(set: state.set.copyWith(flashcards: flashcards)));
+    } else {
+      List<Flashcard> flashcards = [...state.set.flashcards, event.flashcard];
+      emit(state.copyWith(set: state.set.copyWith(flashcards: flashcards)));
+    }
+  }
+
+  Future<void> _handleSaveFlashcardSetEvent(
+    SaveFlashcardSetEvent event,
+    Emitter<FlashcardSetState> emit,
+  ) async {
+    bool isValid = event.formState?.validate() ?? false;
+
+    if (isValid) {
+      await _repository.add(state.set);
+      _navigator.pop();
     }
   }
 }

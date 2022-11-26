@@ -9,23 +9,30 @@ import 'package:memorize/model/flashcard_set.dart';
 import 'package:memorize/ui/widgets/bloc_widget.dart';
 
 class FlashcardSetListPage extends BlocWidget<FlashcardSetListBloc> {
-  FlashcardSetListPage() : super(FlashcardSetListBloc()..add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
+  FlashcardSetListPage({super.key})
+      : super(FlashcardSetListBloc()..add(FlashcardSetListEvent(FlashcardSetListEventType.load)));
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           "MEMORIZE",
-          style:
-              TextStyle(fontFamily: 'Elianto', fontWeight: FontWeight.w200, letterSpacing: 4.0, color: Colors.black38),
+          style: TextStyle(
+              fontFamily: 'Elianto',
+              fontWeight: FontWeight.w200,
+              letterSpacing: 4.0,
+              color: Colors.black38),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.0,
         actions: [
           IconButton(
-            onPressed: () => bloc.add(FlashcardSetListEvent(FlashcardSetListEventType.create)),
-            icon: Icon(Icons.add, color: Colors.black38,),
+            onPressed: () => bloc.add(FlashcardSetListEvent.create()),
+            icon: const Icon(
+              Icons.add,
+              color: Colors.black38,
+            ),
           ),
         ],
       ),
@@ -34,9 +41,9 @@ class FlashcardSetListPage extends BlocWidget<FlashcardSetListBloc> {
           bloc: bloc,
           builder: (_, FlashcardSetListState state) => ConditionalSwitch.single(
             caseBuilders: {
-              FlashcardSetListStateType.loading: (_) => CircularProgressIndicator(),
-              FlashcardSetListStateType.initial: (_) => CircularProgressIndicator(),
-              FlashcardSetListStateType.error: (_) => Text('Error loading set list'),
+              FlashcardSetListStateType.loading: (_) => const CircularProgressIndicator(),
+              FlashcardSetListStateType.initial: (_) => const CircularProgressIndicator(),
+              FlashcardSetListStateType.error: (_) => const Text('Error loading set list'),
             },
             fallbackBuilder: (_) => _buildList(context, state),
             valueBuilder: (_) => state.type,
@@ -50,7 +57,7 @@ class FlashcardSetListPage extends BlocWidget<FlashcardSetListBloc> {
   Widget _buildList(BuildContext context, FlashcardSetListState state) {
     final LocaleBundle locale = Localization.of(context).bundle;
 
-    if (state.sets != null && state.sets!.length > 0) {
+    if (state.sets != null && state.sets!.isNotEmpty) {
       return ListView.builder(
         itemBuilder: (_, index) => _buildListItem(context, state.sets![index], locale),
         itemCount: state.sets!.length,
@@ -63,25 +70,27 @@ class FlashcardSetListPage extends BlocWidget<FlashcardSetListBloc> {
   }
 
   Widget _buildListItem(BuildContext context, FlashcardSet set, LocaleBundle locale) => Slidable(
+        startActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          children: [
+            SlidableAction(
+              label: locale.edit,
+              backgroundColor: Colors.lightBlueAccent,
+              icon: Icons.edit,
+              onPressed: (_) => bloc.add(FlashcardSetListEvent.edit(set.id)),
+            ),
+            SlidableAction(
+              label: locale.delete,
+              backgroundColor: Colors.redAccent,
+              icon: Icons.delete,
+              onPressed: (_) => bloc.add(FlashcardSetListEvent.delete(set.id)),
+            ),
+          ],
+        ),
         child: ListTile(
           title: Text(set.name),
           subtitle: Text(locale.sizeOfSet(set.flashcards.length)),
-          onTap: () => bloc.add(FlashcardSetListEvent(FlashcardSetListEventType.open, set: set)),
+          onTap: () => bloc.add(FlashcardSetListEvent.open(set.id)),
         ),
-        actionPane: SlidableDrawerActionPane(),
-        actions: [
-          IconSlideAction(
-            caption: locale.edit,
-            color: Colors.lightBlueAccent,
-            icon: Icons.edit,
-            onTap: () => bloc.add(FlashcardSetListEvent(FlashcardSetListEventType.edit, set: set)),
-          ),
-          IconSlideAction(
-            caption: locale.delete,
-            color: Colors.redAccent,
-            icon: Icons.delete,
-            onTap: () => bloc.add(FlashcardSetListEvent(FlashcardSetListEventType.delete, set: set)),
-          ),
-        ],
       );
 }
